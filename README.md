@@ -1,449 +1,526 @@
 # PS-FastSearch
 
-A PowerShell-based filesystem search utility for Windows, designed to provide fast indexed searching and reliable deep filesystem searching.
+Fast, flexible file and folder search for Windows PowerShell.
 
-## Version
+**PS-FastSearch** is a PowerShell-based search utility designed for system administrators, IT support engineers, and Windows power users who need a simple way to locate files and folders quickly.
 
-**0.2.2**
+It supports multiple search strategies:
 
-## Author
-
-**Madhushanka Lakmal**
+- **Fast Search** — Uses the Windows Search index for speed.
+- **Deep Search** — Scans the filesystem directly when indexed search is not enough.
+- **Auto Search** — Tries indexed search first and can fall back to deeper searching.
 
 ---
 
-## Overview
+## Project Information
 
-PS-FastSearch provides three search modes:
-
-1. **Fast Search** — Uses the Windows Search Index for very fast searches.
-2. **Deep Search** — Traverses the filesystem directly for a more complete search.
-3. **Auto Search** — Attempts the Windows Search Index first and falls back to Deep Search when no indexed results are found.
-
-The project is designed as a practical PowerShell administration tool and is being developed incrementally from a simple search utility toward a production-quality Windows administration toolkit.
+| Item | Details |
+|---|---|
+| Project | PS-FastSearch |
+| Version | 0.2.2 |
+| Author | Madhushanka Lakmal |
+| Platform | Windows |
+| Language | PowerShell |
+| PowerShell | Windows PowerShell 5.1+ |
+| Status | Development / Early Release |
 
 ---
 
 ## Features
 
-- Fast indexed file search
-- Fast indexed folder search
-- Fast indexed file + folder search
-- Deep filesystem search
-- Automatic search mode
-- File / Folder / Both search types
-- Structured search statistics
-- Search path validation
-- Error handling
-- Access-denied handling in Deep Search
-- Reparse-point handling
-- Queue-based filesystem traversal
-- Clear distinction between indexed and complete search results
+### Search Modes
 
----
+#### 1. Fast Search
 
-## Search Modes
+Uses the Windows Search index.
 
-### 1. Fast Search
+Best when:
 
-Fast Search uses the **Windows Search Index**.
+- Searching normal user files
+- Windows Search indexing is enabled
+- You need quick results
 
-```text
-Fast Search
-    |
-    v
-Windows Search Index
-    |
-    +-- File
-    +-- Folder
-    +-- Both
-```
+#### 2. Deep Search
 
-Advantages:
+Performs a direct filesystem scan.
 
-- Extremely fast
-- Suitable for frequently indexed locations
-- Useful for interactive searches
+Best when:
 
-Important:
+- A file is not indexed
+- Searching locations excluded from indexing
+- You need a more complete filesystem search
 
-> Fast Search only returns items available through the Windows Search index. It does not guarantee complete filesystem coverage.
+> Deep search can be significantly slower on large drives.
 
----
+#### 3. Auto Search
 
-### 2. Deep Search
+Automatically attempts the faster indexed search method first.
 
-Deep Search performs direct filesystem traversal.
-
-```text
-Deep Search
-    |
-    v
-Filesystem
-    |
-    v
-Queue-based traversal
-    |
-    +-- Files
-    +-- Folders
-```
-
-Advantages:
-
-- Searches the filesystem directly
-- Designed for complete filesystem searches
-- Handles large directory trees using iterative queue-based traversal
-- Handles access-denied directories and filesystem errors without terminating the entire search
-
-Deep Search is slower than Fast Search because it has to inspect the filesystem rather than query an existing index.
-
----
-
-### 3. Auto Search
-
-Auto Search attempts the Windows Search Index first.
-
-```text
-Auto Search
-    |
-    v
-Windows Search Index
-    |
-    +-- Results found --> Return indexed results
-    |
-    +-- No results -----> Deep Search
-```
-
-This provides a balance between speed and search coverage.
-
-Fast results are returned when the index contains matching items. If no indexed results are found, the application can fall back to Deep Search.
-
-The returned result always identifies whether the search result is **Indexed** or **Complete**.
+This is intended to become the recommended mode for normal usage.
 
 ---
 
 ## Search Types
 
-PS-FastSearch supports three search types:
+PS-FastSearch supports:
 
-```text
-[1] File
-[2] Folder
-[3] File + Folder
+- File search
+- Folder search
+
+Example:
+
+```powershell
+Search-Indexed -Path "C:\" -Name "report"
 ```
-
-### File
-
-Searches for files matching the supplied name.
-
-### Folder
-
-Searches for directories/folders matching the supplied name.
-
-### Both
-
-Searches for both files and folders.
 
 ---
 
 ## Project Structure
 
 ```text
-PS-FastSearch
+PS-FastSearch/
 │
-├── scripts
-│   ├── PS-FastSearch.ps1
-│   └── PS-FastSearch_V1.2.ps1
-│
-├── src
-│   ├── Search-Deep.ps1
-│   └── Search-Indexed.ps1
-│
+├── README.md
+├── LICENSE
 ├── .gitignore
-└── README.md
+│
+├── src/
+│   ├── Search-Indexed.ps1
+│   ├── Search-Deep.ps1
+│   └── Search-Auto.ps1
+│
+├── tests/
+│   └──
+│
+├── docs/
+│   └──
+│
+└── examples/
+    └──
 ```
 
-### scripts
-
-Contains the main application launcher and related application scripts.
-
-### src
-
-Contains the individual search engines used by PS-FastSearch.
-
-- `Search-Indexed.ps1` — Windows Search Index engine
-- `Search-Deep.ps1` — Direct filesystem search engine
+The project structure may change as development continues.
 
 ---
 
-## Requirements
+# Requirements
 
-- Windows
-- Windows PowerShell 5.1 or PowerShell 7+
-- Windows Search service for Fast Search
-- Appropriate permissions for directories being searched
+## Operating System
 
----
+Supported target platform:
 
-## Running the Application
+- Windows 10
+- Windows 11
+- Windows Server
 
-Clone or download the repository and open PowerShell in the project directory.
+## PowerShell
+
+Recommended:
+
+- Windows PowerShell 5.1+
+- PowerShell 7+ may be supported depending on the individual search implementation
+
+Check your PowerShell version:
 
 ```powershell
-Set-Location "PS-FastSearch"
+$PSVersionTable.PSVersion
 ```
 
-Run:
+---
+
+# Installation
+
+## Option 1 — Clone with Git
+
+Clone the repository:
 
 ```powershell
-.\scripts\PS-FastSearch.ps1
+git clone https://github.com/MLakmal97/PS-FastSearch.git
 ```
 
-The application will display the interactive menu:
-
-```text
-============================================
-              PS-FastSearch
-============================================
-
-Search Mode
-
-[1] Fast Search   - Windows Search Index
-[2] Deep Search   - Direct filesystem scan
-[3] Auto Search   - Windows Search Index first
-```
-
----
-
-## Example
-
-Example search:
-
-```text
-Search Mode: Fast
-Search Type: File
-Path: C:\
-Name: report
-```
-
-Example indexed results:
-
-```text
-C:\Users\Lakmal\Downloads\CCNA_Static_Routing_Lab_Report_Template.docx
-C:\Users\Lakmal\Downloads\SPSS Report.pdf
-```
-
----
-
-## Search Statistics
-
-PS-FastSearch returns structured statistics including:
-
-```text
-ResultsFound
-SearchTimeSeconds
-SearchType
-SearchPath
-SearchEngine
-SearchScope
-Completeness
-```
-
-Example:
-
-```text
-ResultsFound      : 2
-SearchTimeSeconds : 0.081
-SearchType        : File
-SearchPath        : C:\
-SearchEngine      : Windows Search Index
-SearchScope       : Indexed items only
-Completeness      : Indexed
-```
-
----
-
-## Performance
-
-The project was developed with performance as an important requirement.
-
-A baseline PowerShell recursive search was benchmarked against the queue-based Deep Search engine.
-
-### Baseline
+Move into the project:
 
 ```powershell
-Measure-Command {
-    Get-ChildItem -Path C:\ -File -Recurse -ErrorAction SilentlyContinue |
-        Where-Object { $_.Name -like "*report*" }
-}
-```
-
-Baseline measurement:
-
-```text
-~349.6 seconds
-```
-
-A queue-based Deep Search implementation subsequently reduced the measured runtime substantially in testing.
-
-Example measured Deep Search:
-
-```text
-~106.6 seconds
-```
-
-Actual runtime depends on:
-
-- Filesystem size
-- Number of directories
-- Disk performance
-- Access permissions
-- Reparse points
-- Running processes
-- Windows filesystem state
-
-Benchmarks are environment-specific and should not be interpreted as universal performance guarantees.
-
----
-
-## Indexed Search vs Deep Search
-
-| Feature | Fast Search | Deep Search |
-|---|---|---|
-| Search engine | Windows Search Index | Filesystem |
-| Speed | Very fast | Slower |
-| Indexed items | Yes | Not required |
-| Direct filesystem traversal | No | Yes |
-| File search | Yes | Yes |
-| Folder search | Yes | Yes |
-| Both | Yes | Yes |
-| Complete filesystem coverage | No guarantee | Designed for complete search |
-| Best use | Fast interactive search | Thorough search |
-
----
-
-## Why Two Search Engines?
-
-Windows Search provides very fast results because it queries an existing search index.
-
-However, indexed search does not guarantee that every filesystem item is indexed.
-
-Deep Search solves this by directly traversing the filesystem.
-
-This gives PS-FastSearch two different strengths:
-
-```text
-FAST
-Speed
-  |
-  v
-Windows Search Index
-
-
-DEEP
-Coverage
-  |
-  v
-Filesystem traversal
+cd PS-FastSearch
 ```
 
 ---
 
-## Development Roadmap
+## Option 2 — Download ZIP
 
-### V0.2.2 — Current
+Download the repository as a ZIP file from GitHub and extract it.
 
-- [x] Interactive search menu
-- [x] Fast indexed search
-- [x] Deep filesystem search
-- [x] File search
-- [x] Folder search
-- [x] File + Folder search
-- [x] Auto Search
-- [x] Structured statistics
-- [x] Access-denied handling
-- [x] Reparse-point handling
-- [x] Queue-based traversal
-- [x] Indexed/complete result labeling
-
-### Future
-
-Potential future development includes:
-
-- [ ] Extension filters
-- [ ] File size filters
-- [ ] Date filters
-- [ ] Progress display
-- [ ] Result export
-- [ ] CSV export
-- [ ] JSON export
-- [ ] Open result directly
-- [ ] Copy result path
-- [ ] PowerShell pipeline support
-- [ ] Improved hybrid search
-- [ ] Automated tests
-- [ ] Performance benchmark suite
-- [ ] Production documentation
-- [ ] Release automation
+Then open PowerShell in the project directory.
 
 ---
 
-## PowerShell Learning Goals
+# Running the Project
 
-This project is also being developed as a practical PowerShell learning project.
+If the project contains a main script, run it using:
 
-Topics demonstrated by the project include:
+```powershell
+.\PS-FastSearch.ps1
+```
 
-- Functions
-- Parameters
-- Validation attributes
-- Objects
-- Custom objects
-- Error handling
-- `try/catch/finally`
-- File and directory operations
-- .NET classes
-- Generic collections
-- Queues
-- Windows Search OLE DB
-- SQL-like queries
-- Stopwatch-based benchmarking
-- Script modularization
-- Dot-sourcing
-- Project-relative paths
-- Git version control
+If the script is located elsewhere, use its full path:
+
+```powershell
+& "D:\PS-FastSearch\PS-FastSearch.ps1"
+```
+
+If you need to run a specific source script:
+
+```powershell
+& "D:\PS-FastSearch\src\Search-Indexed.ps1"
+```
 
 ---
 
-## Versioning
+# Using the Search Function
 
-The project uses version tags such as:
+If `Search-Indexed.ps1` defines the `Search-Indexed` function, load it into the current PowerShell session:
+
+```powershell
+. "D:\PS-FastSearch\src\Search-Indexed.ps1"
+```
+
+Then run:
+
+```powershell
+Search-Indexed -Path "C:\" -Name "report"
+```
+
+Another example:
+
+```powershell
+Search-Indexed -Path "D:\" -Name "backup"
+```
+
+---
+
+# PowerShell Execution Policy
+
+If PowerShell blocks script execution, check the current policy:
+
+```powershell
+Get-ExecutionPolicy -List
+```
+
+For a script downloaded from the Internet, you may need to unblock it:
+
+```powershell
+Unblock-File ".\PS-FastSearch.ps1"
+```
+
+Do not blindly change the system-wide execution policy. Prefer the least-privileged approach appropriate for your environment.
+
+---
+
+# Development
+
+## Clone the Repository
+
+```powershell
+git clone https://github.com/MLakmal97/PS-FastSearch.git
+cd PS-FastSearch
+```
+
+## Create a Development Branch
+
+```powershell
+git checkout -b feature/new-search-method
+```
+
+Make your changes and test them.
+
+Check the changes:
+
+```powershell
+git status
+```
+
+Review the diff:
+
+```powershell
+git diff
+```
+
+---
+
+# Git Workflow
+
+A simple workflow for this project:
 
 ```text
-v0.2.2
+Pull
+  ↓
+Create Branch
+  ↓
+Develop
+  ↓
+Test
+  ↓
+Commit
+  ↓
+Push
+  ↓
+Pull Request
+  ↓
+Merge
 ```
 
 Example:
 
 ```powershell
-git tag -a v0.2.2 -m "PS-FastSearch v0.2.2"
+git pull origin main
+
+git checkout -b feature/improve-search
+
+# Make changes
+
+git status
+git add .
+git commit -m "Improve search performance"
+git push -u origin feature/improve-search
+```
+
+---
+
+# Updating an Existing Version
+
+After making changes:
+
+```powershell
+git status
+git add .
+git commit -m "Update PS-FastSearch"
+git push
+```
+
+For a release version:
+
+```powershell
+git tag v0.2.2
 git push origin v0.2.2
 ```
+
+Future releases can use:
+
+```text
+v0.2.3
+v0.3.0
+v1.0.0
+```
+
+---
+
+# Recommended Versioning
+
+PS-FastSearch follows semantic-style versioning:
+
+```text
+MAJOR.MINOR.PATCH
+```
+
+Example:
+
+```text
+1.2.3
+│ │ │
+│ │ └── Bug fixes
+│ └──── New features
+└────── Major breaking changes
+```
+
+---
+
+# Security Considerations
+
+PS-FastSearch is intended to run locally on Windows systems.
+
+The project should not:
+
+- Upload searched filenames to an external server
+- Send filesystem information to a third party
+- Store user search results remotely
+- Require unnecessary administrator privileges
+- Modify files during a normal search operation
+
+Future features should preserve a local-first design.
+
+---
+
+# Performance Notes
+
+Search performance depends on:
+
+- Drive size
+- Number of files
+- Windows Search index status
+- File permissions
+- Network paths
+- Disk performance
+- Search method
+
+For large drives, indexed search should generally be preferred when the required content is indexed.
+
+Deep filesystem scanning can take considerably longer.
+
+---
+
+# Troubleshooting
+
+## Search returns no results
+
+Check whether Windows Search is running:
+
+```powershell
+Get-Service WSearch
+```
+
+Check the service status:
+
+```powershell
+Get-Service WSearch | Select-Object Name, Status, StartType
+```
+
+If indexed search does not find the file, try Deep Search.
+
+---
+
+## Access Denied
+
+Some directories require elevated permissions.
+
+If appropriate for your administrative task, open PowerShell as Administrator and retry.
+
+Avoid running with elevated privileges unless required.
+
+---
+
+## Script execution is blocked
+
+Check:
+
+```powershell
+Get-ExecutionPolicy -List
+```
+
+For an individual downloaded script:
+
+```powershell
+Unblock-File ".\script.ps1"
+```
+
+---
+
+# Roadmap
+
+Planned improvements:
+
+- [ ] Improved CLI interface
+- [ ] File extension filtering
+- [ ] Folder-only filtering
+- [ ] Multiple search paths
+- [ ] Case-sensitive search option
+- [ ] Regular expression search
+- [ ] Search result export
+- [ ] CSV output
+- [ ] JSON output
+- [ ] Search result statistics
+- [ ] Better error handling
+- [ ] Permission-aware search
+- [ ] Search progress indicator
+- [ ] Performance optimization
+- [ ] Pester test coverage
+- [ ] PowerShell module support
+- [ ] Installable PowerShell module
+- [ ] GitHub Actions CI
+- [ ] Production release v1.0.0
+
+---
+
+# Example Future CLI
+
+The long-term goal is to provide a simple command-line experience such as:
+
+```powershell
+PS-FastSearch -Path "C:\" -Name "report" -Mode Auto
+```
+
+Possible future examples:
+
+```powershell
+PS-FastSearch -Path "D:\Reports" -Name "*.pdf"
+
+PS-FastSearch -Path "C:\Users" -Name "invoice" -Type File
+
+PS-FastSearch -Path "D:\" -Name "Projects" -Type Folder -Mode Deep
+```
+
+These interfaces are part of the roadmap and may not be available in the current release.
+
+---
+
+# Contributing
+
+Contributions are welcome.
+
+Before submitting changes:
+
+1. Create a feature branch.
+2. Keep changes focused.
+3. Test the PowerShell code.
+4. Update documentation when behavior changes.
+5. Use clear commit messages.
+6. Submit a pull request.
+
+Example:
+
+```powershell
+git checkout -b feature/add-json-output
+```
+
+---
+
+# Author
+
+**Madhushanka Lakmal**
+
+IT System Administration | Windows | PowerShell | Automation | Infrastructure
+
+GitHub:
+
+https://github.com/MLakmal97
+
+---
+
+# License
+
+This project is currently under development.
+
+Add an appropriate open-source license before distributing the project publicly for reuse. A common choice for PowerShell utilities is the MIT License.
 
 ---
 
 ## Disclaimer
 
-PS-FastSearch is an evolving administration and learning project.
+PS-FastSearch is provided as a development project and should be tested in a non-production environment before being used as part of operational workflows.
 
-Search completeness and performance depend on the Windows environment, filesystem permissions, Windows Search indexing configuration, storage performance, and other system conditions.
-
-Always validate results before using the tool for critical administrative or forensic purposes.
+Always verify search results before performing administrative actions based on them.
 
 ---
 
-## Author
+## ⭐ Support the Project
 
-**Madhushanka Lakmal**
+If you find PS-FastSearch useful:
 
-PowerShell | Windows Administration | IT Operations | Automation
+- ⭐ Star the repository
+- 🐛 Report bugs
+- 💡 Suggest improvements
+- 🔧 Submit pull requests
+- 📚 Share the project with other PowerShell administrators
+
+---
+
+**PS-FastSearch — Fast, practical filesystem search for Windows administrators.**

@@ -1,0 +1,66 @@
+# ==============================
+# PS-FastSearch .gitignore
+# ==============================
+
+# PowerShell / temporary files
+*.tmp
+*.temp
+*.log
+*.bak
+*.old
+
+# Credentials / secrets
+*.credential
+*.credentials
+*.secret
+*.secrets
+*.key
+*.pem
+*.pfx
+*.p12
+*.crt
+.env
+.env.*
+secrets.json
+credentials.json
+smtp-credential.xml
+
+# Local configuration
+config.local.json
+settings.local.json
+
+# PowerShell transcript files
+*.txt
+!README.md
+!LICENSE
+
+# Test / generated output
+TestResults/
+coverage/
+results/
+output/
+reports/
+
+# IDE / editor
+.vscode/
+.idea/
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# Build / package output
+bin/
+obj/
+dist/
+build/
+
+# Archives
+*.zip
+*.7z
+*.rar
+
+# User-specific PowerShell history
+ConsoleHost_history.txt
