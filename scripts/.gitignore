@@ -1,0 +1,22 @@
+@"
+# PowerShell
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# VS Code
+.vscode/
+
+# PowerShell history
+*.pshist
+
+# Test output
+test-output/
+results/
+"@ | Set-Content ".gitignore"
